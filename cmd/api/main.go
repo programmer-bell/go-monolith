@@ -7,14 +7,20 @@ import (
 	"time"
 
 	"github.com/programmer-bell/go-monolith/internal/config"
+	"github.com/programmer-bell/go-monolith/internal/db"
 	"github.com/programmer-bell/go-monolith/internal/handlers"
 )
 
 func main() {
 
 	cfg := config.MustLoad()
+	_, err := db.Connect(cfg.DatabaseUrl)
+	if err != nil {
+		log.Fatalf("main.db.connect:%v", err)
+	}
 
-	fmt.Println("Starting olx server")
+	fmt.Println("Database connected.")
+	fmt.Println("Starting olx server...")
 
 	mux := http.NewServeMux()
 
