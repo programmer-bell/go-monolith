@@ -14,7 +14,7 @@ import (
 func main() {
 
 	cfg := config.MustLoad()
-	_, err := db.Connect(cfg.DatabaseUrl)
+	db, err := db.Connect(cfg.DatabaseUrl)
 	if err != nil {
 		log.Fatalf("main.db.connect:%v", err)
 	}
@@ -25,6 +25,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /healthz", handlers.HealthzHandler)
+	mux.HandleFunc("GET /listing", handlers.List(db))
 
 	srv := http.Server{
 		Addr:         ":" + cfg.Port,
