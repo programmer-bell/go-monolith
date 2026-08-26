@@ -22,11 +22,12 @@ func main() {
 	fmt.Println("Database connected.")
 	fmt.Println("Starting olx server...")
 
-	mux := http.NewServeMux()
+	lh := handlers.NewListingHandler(db)
 
+	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", handlers.HealthzHandler)
-	mux.HandleFunc("GET /listing", handlers.List(db))
-	mux.HandleFunc("DELETE /listings/{id}", handlers.DeleteListing(db))
+	mux.HandleFunc("GET /listing", lh.List)
+	mux.HandleFunc("DELETE /listings/{id}", lh.Delete)
 
 	srv := http.Server{
 		Addr:         ":" + cfg.Port,
