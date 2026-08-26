@@ -57,3 +57,16 @@ func List(db *sql.DB) http.HandlerFunc {
 	}
 
 }
+
+func DeleteListing(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		_, err := db.Exec(`DELETE FROM listing WHERE id = $1`, id)
+		if err != nil {
+			log.Printf("delete: %w", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
