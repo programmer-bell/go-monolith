@@ -11,6 +11,7 @@ import (
 	"github.com/programmer-bell/go-monolith/internal/config"
 	"github.com/programmer-bell/go-monolith/internal/db"
 	"github.com/programmer-bell/go-monolith/internal/handlers"
+	"github.com/programmer-bell/go-monolith/internal/middleware"
 )
 
 func main() {
@@ -21,11 +22,11 @@ func main() {
 		log.Fatalf("main.db.connect:%v", err)
 	}
 
-	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+	loghandler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		AddSource: true,
 		Level:     slog.LevelInfo,
 	})
-	logger := slog.New(handler)
+	logger := slog.New(loghandler)
 	slog.SetDefault(logger)
 
 	fmt.Println("Database connected.")
@@ -38,9 +39,10 @@ func main() {
 	mux.HandleFunc("GET /listing", lh.List)
 	mux.HandleFunc("DELETE /listings/{id}", lh.Delete)
 
+	handler := middleware.RequestId(mux)
 	srv := http.Server{
 		Addr:         ":" + cfg.Port,
-		Handler:      mux,
+		Handler:      handler,
 		ReadTimeout:  time.Second * 10,
 		WriteTimeout: time.Second * 30,
 		IdleTimeout:  time.Second * 60,

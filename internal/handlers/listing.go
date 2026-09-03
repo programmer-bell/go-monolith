@@ -7,6 +7,8 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/programmer-bell/go-monolith/internal/middleware"
 )
 
 type listing struct {
@@ -72,11 +74,12 @@ func (lh ListingHandler) List(w http.ResponseWriter, r *http.Request) {
 
 func (lh ListingHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	requestId := middleware.RequestIDFromContext(ctx)
 	id := r.PathValue("id")
 
 	_, err := lh.db.ExecContext(ctx, `DELETE FROM listing WHERE id = $1`, id)
 	if err != nil {
-		lh.logger.Error("delete failed", "listing_id", id, "error", err)
+		lh.logger.Error("delete failed", "listing_id", id, "request_id", requestId, "error", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 	}
 
