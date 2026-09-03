@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/programmer-bell/go-monolith/internal/httpx"
 	"github.com/programmer-bell/go-monolith/internal/middleware"
 )
 
@@ -80,7 +81,8 @@ func (lh ListingHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	_, err := lh.db.ExecContext(ctx, `DELETE FROM listing WHERE id = $1`, id)
 	if err != nil {
 		lh.logger.Error("delete failed", "listing_id", id, "request_id", requestId, "error", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		httpx.Error(w, http.StatusInternalServerError, "Something went wrong", "internal error")
+		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
